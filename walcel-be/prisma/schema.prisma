@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // postgresql
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id           String       @id @unique
+  siteId       String?
+  githubUrl    String
+  githubBranch String
+  address      String
+  ensName      String?
+  deployments  Deployment[]
+  environment  Environment?
+  buildConfig  BuildConfig?
+  createdAt    DateTime
+  updatedAt    DateTime
+
+  @@unique([githubUrl, githubBranch])
+  @@index([githubUrl, address])
+}
+
+model Deployment {
+  id          Int       @id @default(autoincrement())
+  status      String
+  commitHash  String?
+  commitTitle String?
+  ipfsCid     String?
+  error       String?
+  deployedAt  DateTime?
+  createdAt   DateTime
+  updatedAt   DateTime
+  project     Project?  @relation(fields: [projectId], references: [id])
+  projectId   String?
+
+  @@index([id])
+}
+
+model Environment {
+  id        Int      @id @default(autoincrement())
+  jsonText  String
+  createdAt DateTime
+  updatedAt DateTime
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId String   @unique
+
+  @@index([id])
+}
+
+model BuildConfig {
+  id        Int      @id @default(autoincrement())
+  jsonText  String
+  outputDir String
+  createdAt DateTime
+  updatedAt DateTime
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId String   @unique
+
+  @@index([id])
+}
+
+model SyncInfo {
+  chain     String   @id @unique
+  blockNum  BigInt
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+
+  @@index([chain])
+}
+
+model ContentHash {
+  id        Int      @id @default(autoincrement())
+  txHash    String   @unique
+  node      String
+  ensName   String?  @default("")
+  hash      String
+  blockNum  BigInt
+  status    String
+  retry     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+
+  @@index([id, node, status])
+  @@index([ensName])
+  @@index([hash])
+  @@index([status])
+}

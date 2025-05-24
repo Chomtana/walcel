@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="200"
+        height="200"
+        viewBox="0 0 200 200"
+>
+
+    <!-- Title and description for accessibility -->
+    <title>Singular Domain Logo</title>
+    <desc>A simple stylized “S” in a circle with brand text.</desc>
+
+    <!-- Outer Circle -->
+    <circle
+            cx="100"
+            cy="100"
+            r="80"
+            fill="none"
+            stroke="#E70000"
+            stroke-width="8"
+    />
+
+    <!-- "S" Path (stylized curve) -->
+    <path
+            d="M 70,60
+       C 80,40  120,40  130,60
+       C 140,80  110,90  100,100
+       C 90,110  120,120  130,140
+       C 135,150 100,160  90,140
+    "
+            fill="none"
+            stroke="#E70000"
+            stroke-width="8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+    />
+
+    <!-- Brand Text -->
+    <text
+            x="50%"
+            y="180"
+            font-family="Arial, sans-serif"
+            font-size="16"
+            font-weight="bold"
+            fill="#E70000"
+            text-anchor="middle"
+    >
+    </text>
+</svg>
