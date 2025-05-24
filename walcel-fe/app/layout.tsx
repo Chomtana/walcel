@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import '@rainbow-me/rainbowkit/styles.css';
-import {Header} from "@/components/header";
+import "@rainbow-me/rainbowkit/styles.css";
+import { Header } from "@/components/header";
 import ContextProvider from "@/context";
-import {Toaster} from "@/components/ui/sonner";
-import {ThemeProvider} from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -19,8 +19,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "dWeb - Deploy decentralized websites",
-  description: "Deploy decentralized websites with dWeb",
+  title: "Walcel - Vercel for Walrus",
+  description: "Vercel for Walrus",
 };
 
 export default function RootLayout({
@@ -30,24 +30,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-    <body
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-    >
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="dark"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <ContextProvider>
-        <Header/>
-        <main className="mx-auto max-w-screen-xl px-4 py-8">
-          {children}
-        </main>
-        <Toaster/>
-      </ContextProvider>
-    </ThemeProvider>
-    </body>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ContextProvider>
+            <Header />
+            <main className="mx-auto max-w-screen-xl px-4 py-8">
+              {children}
+            </main>
+            <Toaster />
+          </ContextProvider>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

@@ -1,48 +1,62 @@
 "use client";
 
-import {Button} from "@/components/ui/button";
-import {Loader2, Plus} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, Plus } from "lucide-react";
 import {
-  AlertDialog, AlertDialogCancel,
-  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {Label} from "@/components/ui/label";
-import {Input} from "@/components/ui/input";
-import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
-import EnvManager, {EnvVar} from "@/components/envmanager";
-import {useEffect, useState} from "react";
-import {toast} from "sonner";
-import {useFileSrv} from "@/hooks/useFileSrv";
-import {useAccount, useSignMessage} from "wagmi";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import EnvManager, { EnvVar } from "@/components/envmanager";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useFileSrv } from "@/hooks/useFileSrv";
+import { useAccount, useSignMessage } from "wagmi";
 import ComboboxComponent from "@/components/combobox";
-import {Skeleton} from "@/components/ui/skeleton";
-import {useRouter} from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
   const [repoUrl, setRepoUrl] = useState("");
   const [branchName, setBranchName] = useState("");
   const [outputDir, setOutputDir] = useState("dist");
-  const [envVars, setEnvVars] = useState<EnvVar[]>([{key: "", value: ""}]);
+  const [envVars, setEnvVars] = useState<EnvVar[]>([{ key: "", value: "" }]);
   const [isOpened, setIsOpened] = useState(false);
-  const [branches, setBranches] = useState<{ value: string; label: string; }[]>([]);
+  const [branches, setBranches] = useState<{ value: string; label: string }[]>(
+    []
+  );
   const [disabledBranch, setDisabledBranch] = useState(true);
 
   const router = useRouter();
-  const {address} = useAccount()
-  const {signMessageAsync} = useSignMessage();
-  const {uploadGithub, isMutating: isUploading, data: respUpload} = useFileSrv();
+  const { address } = useAccount();
+  const { signMessageAsync } = useSignMessage();
+  const {
+    uploadGithub,
+    isMutating: isUploading,
+    data: respUpload,
+  } = useFileSrv();
 
   const clearState = () => {
     setRepoUrl("");
     setBranchName("");
     setOutputDir("dist");
-    setEnvVars([{key: "", value: ""}]);
+    setEnvVars([{ key: "", value: "" }]);
     setBranches([]);
     setDisabledBranch(true);
-  }
+  };
 
   const getBranches = async (url: string) => {
     try {
@@ -57,9 +71,9 @@ export default function Dashboard() {
       });
       return await response.json();
     } catch (err) {
-      console.error("Error fetching branches:", err)
+      console.error("Error fetching branches:", err);
     }
-  }
+  };
 
   const getDefaultBranch = async (url: string) => {
     try {
@@ -75,13 +89,13 @@ export default function Dashboard() {
       const data = await response.json();
       return data.default_branch;
     } catch (err) {
-      console.error("Error fetching default branch:", err)
+      console.error("Error fetching default branch:", err);
     }
-  }
+  };
 
   const handleBlur = async () => {
     if (!repoUrl) {
-      return
+      return;
     }
     try {
       const defaultBranch = await getDefaultBranch(repoUrl);
@@ -89,10 +103,10 @@ export default function Dashboard() {
         setBranchName(defaultBranch);
       }
       const branches = await getBranches(repoUrl);
-      const listBranches: { value: string; label: string; }[] = [];
+      const listBranches: { value: string; label: string }[] = [];
       if (branches) {
         branches.map((branch: { name: string }) => {
-          listBranches.push({label: branch.name, value: branch.name});
+          listBranches.push({ label: branch.name, value: branch.name });
         });
         if (listBranches.length > 0) {
           setBranches(listBranches);
@@ -102,26 +116,26 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Error fetching branches:", error);
     }
-  }
+  };
 
   // Handle deploy
   const handleDeploy = async () => {
     if (!repoUrl) {
       toast.error("Please enter a valid GitHub repository URL");
-      return
+      return;
     }
     if (!repoUrl.startsWith("https://github.com")) {
       toast.error("Please enter a valid GitHub repository URL");
-      return
+      return;
     }
     if (!branchName || branchName === "") {
       toast.error("Please select the branch to deploy");
-      return
+      return;
     }
 
     try {
       const message = `Deploy ${repoUrl} on branch ${branchName} at ${Date.now()}`;
-      const signature = await signMessageAsync({message});
+      // const signature = await signMessageAsync({message});
       await uploadGithub({
         url: repoUrl,
         branch: branchName,
@@ -129,11 +143,11 @@ export default function Dashboard() {
         outputDir,
         address: address!,
         message,
-        signature
+        signature: "dummy",
       });
     } catch (e) {
       console.error(e);
-      toast.dismiss()
+      toast.dismiss();
       toast.error((e as Error).message);
     }
   };
@@ -152,12 +166,14 @@ export default function Dashboard() {
     <AlertDialog open={isOpened} onOpenChange={setIsOpened}>
       <AlertDialogTrigger asChild>
         <Button variant="secondary" className="whitespace-nowrap">
-          <Plus className="w-4 h-4"/> New Project
+          <Plus className="w-4 h-4" /> New Project
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="w-[95vw] max-w-md md:max-w-lg lg:max-w-xl">
         <AlertDialogHeader>
-          <AlertDialogTitle className="mb-4 text-lg md:text-xl">New Project</AlertDialogTitle>
+          <AlertDialogTitle className="mb-4 text-lg md:text-xl">
+            New Project
+          </AlertDialogTitle>
           <AlertDialogDescription>
             <div className="flex flex-col space-y-4">
               {/* ✅ GitHub Repo Input */}
@@ -185,14 +201,16 @@ export default function Dashboard() {
                     defaultValue={branchName}
                   />
                 ) : (
-                  <Skeleton className="h-8 w-full"/>
+                  <Skeleton className="h-8 w-full" />
                 )}
               </div>
 
               {/* ✅ Accordion for Build Settings & Env Variables */}
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="build-settings">
-                  <AccordionTrigger className="font-bold text-base">Build Settings</AccordionTrigger>
+                  <AccordionTrigger className="font-bold text-base">
+                    Build Settings
+                  </AccordionTrigger>
                   <AccordionContent>
                     <div className="flex flex-col space-y-4">
                       <div className="grid w-full items-center gap-2">
@@ -209,9 +227,11 @@ export default function Dashboard() {
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="environment-variables">
-                  <AccordionTrigger className="font-bold text-base">Environment Variables</AccordionTrigger>
+                  <AccordionTrigger className="font-bold text-base">
+                    Environment Variables
+                  </AccordionTrigger>
                   <AccordionContent>
-                    <EnvManager envVars={envVars} setEnvVars={setEnvVars}/>
+                    <EnvManager envVars={envVars} setEnvVars={setEnvVars} />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
@@ -227,8 +247,16 @@ export default function Dashboard() {
           >
             Cancel
           </AlertDialogCancel>
-          <Button className="w-full md:w-2/3" onClick={handleDeploy} disabled={isUploading}>
-            {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : "Deploy"}
+          <Button
+            className="w-full md:w-2/3"
+            onClick={handleDeploy}
+            disabled={isUploading}
+          >
+            {isUploading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              "Deploy"
+            )}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
