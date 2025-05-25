@@ -157,6 +157,7 @@ export class DeployService {
       commitTitle,
       outputDir,
       deployment.project.siteId,
+      deployment.projectId,
     ];
   }
 
@@ -251,8 +252,16 @@ export class DeployService {
     error: string,
     commitHash: string,
     commitTitle: string,
+    projectId: string,
   ) {
     this.logger.log(`[DEPLOY] Updating IPFS CID for ${deployId}: ${ipfsCid}`);
+    // Update the project with the new siteId
+    await this.prisma.project.update({
+      where: { id: projectId },
+      data: {
+        siteId: ipfsCid,
+      },
+    });
     // Update the database with the IPFS CID
     return this.prisma.deployment.update({
       where: { id: deployId },

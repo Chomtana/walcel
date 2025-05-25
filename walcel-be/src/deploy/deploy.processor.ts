@@ -23,6 +23,7 @@ export class DeployProcessor extends WorkerHost {
         commitTitle,
         outputDir,
         siteId,
+        projectId,
       ] = await this.deployService.fetchProject(deployId);
       this.logger.log(`[DEPLOY] Project fetched: ${projectPath}`);
       await job.updateProgress(33);
@@ -43,7 +44,14 @@ export class DeployProcessor extends WorkerHost {
       await job.updateProgress(100);
 
       // Mark job as completed
-      return { deployId, status: 'deployed', ipfsCid, commitHash, commitTitle };
+      return {
+        deployId,
+        status: 'deployed',
+        ipfsCid,
+        commitHash,
+        commitTitle,
+        projectId,
+      };
     } catch (error) {
       this.logger.error(
         `Failed to process project: ${deployId} - err: ${JSON.stringify(error)}`,
@@ -54,6 +62,7 @@ export class DeployProcessor extends WorkerHost {
         error: JSON.stringify(error),
         commitHash: '',
         commitTitle: '',
+        projectId: '',
       };
     }
   }
@@ -74,6 +83,7 @@ export class DeployProcessor extends WorkerHost {
       error?: string;
       commitHash: string;
       commitTitle: string;
+      projectId: string;
     };
     await this.deployService.updateIPFSCid(
       value.deployId,
@@ -82,6 +92,7 @@ export class DeployProcessor extends WorkerHost {
       value.error || '',
       value.commitHash,
       value.commitTitle,
+      value.projectId,
     );
   }
 }
