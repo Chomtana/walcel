@@ -1,8 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useAccount } from "wagmi";
 import LandingPage from "@/components/landing";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
 export default function DashboardLayout({
   children,
@@ -13,10 +13,10 @@ export default function DashboardLayout({
   ensdomains: React.ReactNode;
   deployments: React.ReactNode;
 }) {
-  const { address, isConnected } = useAccount();
+  const account = useCurrentAccount();
   const pathname = usePathname();
 
-  if (!isConnected || !address) {
+  if (!account?.address) {
     return <LandingPage />;
   }
 

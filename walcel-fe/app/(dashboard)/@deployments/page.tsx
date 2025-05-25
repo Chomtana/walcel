@@ -1,15 +1,15 @@
 "use client";
 
-import {fileSrvUrl} from "@/hooks/useFileSrv";
-import {useAccount} from "wagmi";
-import {useCallback, useEffect, useRef, useState} from "react";
-import ProjectList, {Project} from "@/components/project";
+import { fileSrvUrl } from "@/hooks/useFileSrv";
+import { useCallback, useEffect, useRef, useState } from "react";
+import ProjectList, { Project } from "@/components/project";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
 export default function Deployments() {
   const [projects, setProjects] = useState<Project[]>([]);
   const projectsRef = useRef<Project[]>([]);
 
-  const {address} = useAccount();
+  const account = useCurrentAccount();
 
   const getAllProjects = async (address: string) => {
     try {
@@ -22,31 +22,35 @@ export default function Deployments() {
       });
       return await response.json();
     } catch (err) {
-      console.error("Error fetching all projects:", err)
+      console.error("Error fetching all projects:", err);
     }
-  }
+  };
 
   const fetchProjects = useCallback(async () => {
-    if (!address) return;
+    if (!account?.address) return;
 
     try {
-      const data = await getAllProjects(address);
+      const data = await getAllProjects(account.address);
       if (data) {
-        const newProjects = data.map((d: {
-          id: string;
-          githubUrl: string;
-          githubBranch: string;
-          deployments: { commitHash: string; status: string }[]
-        }) => ({
-          id: d.id,
-          projectName: d.githubUrl.replace("https://github.com/", ""),
-          githubRepo: d.githubUrl,
-          branch: d.githubBranch,
-          status: d.deployments[0]?.status || "unknown",
-          commitHash: d.deployments[0]?.commitHash || "N/A"
-        }));
+        const newProjects = data.map(
+          (d: {
+            id: string;
+            githubUrl: string;
+            githubBranch: string;
+            deployments: { commitHash: string; status: string }[];
+          }) => ({
+            id: d.id,
+            projectName: d.githubUrl.replace("https://github.com/", ""),
+            githubRepo: d.githubUrl,
+            branch: d.githubBranch,
+            status: d.deployments[0]?.status || "unknown",
+            commitHash: d.deployments[0]?.commitHash || "N/A",
+          })
+        );
 
-        if (JSON.stringify(projectsRef.current) !== JSON.stringify(newProjects)) {
+        if (
+          JSON.stringify(projectsRef.current) !== JSON.stringify(newProjects)
+        ) {
           setProjects(newProjects);
           projectsRef.current = newProjects;
         }
@@ -54,7 +58,7 @@ export default function Deployments() {
     } catch (error) {
       console.error("Error fetching projects:", error);
     }
-  }, [address]);
+  }, [account?.address]);
 
   useEffect(() => {
     fetchProjects().catch(console.error);
@@ -68,7 +72,7 @@ export default function Deployments() {
   return (
     <div className="flex flex-col w-full">
       <h1 className="text-3xl font-semibold mb-10">Deployments</h1>
-      <ProjectList projects={projects}/>
+      <ProjectList projects={projects} />
     </div>
   );
 }

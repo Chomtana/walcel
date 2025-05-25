@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ConnectButton } from "@mysten/dapp-kit";
 import { Menu, X } from "lucide-react";
 
 export function Header() {
@@ -59,14 +59,9 @@ export function Header() {
         </nav> */}
 
         {/* 🔗 Wallet Connect */}
-        {/* <div className="hidden md:flex items-center space-x-2">
-          <ConnectButton
-            showBalance={false}
-            accountStatus="address"
-            chainStatus="icon"
-            label="Connect"
-          />
-        </div> */}
+        <div className="hidden md:flex items-center space-x-2">
+          <ConnectButton />
+        </div>
       </div>
 
       {/* 📱 Mobile Nav Links */}
@@ -87,12 +82,7 @@ export function Header() {
             </Link>
           ))}
           <div className="pt-2">
-            <ConnectButton
-              showBalance={false}
-              accountStatus="address"
-              chainStatus="icon"
-              label="Connect"
-            />
+            <ConnectButton />
           </div>
         </div>
       )}

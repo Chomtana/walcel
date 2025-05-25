@@ -24,10 +24,10 @@ import EnvManager, { EnvVar } from "@/components/envmanager";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useFileSrv } from "@/hooks/useFileSrv";
-import { useAccount, useSignMessage } from "wagmi";
 import ComboboxComponent from "@/components/combobox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
 export default function Dashboard() {
   const [repoUrl, setRepoUrl] = useState("");
@@ -41,8 +41,7 @@ export default function Dashboard() {
   const [disabledBranch, setDisabledBranch] = useState(true);
 
   const router = useRouter();
-  const { address } = useAccount();
-  const { signMessageAsync } = useSignMessage();
+  const account = useCurrentAccount();
   const {
     uploadGithub,
     isMutating: isUploading,
@@ -141,7 +140,7 @@ export default function Dashboard() {
         branch: branchName,
         envJson: envVars.length > 1 ? JSON.stringify(envVars) : "",
         outputDir,
-        address: address!,
+        address: account!.address,
         message,
         signature: "dummy",
       });

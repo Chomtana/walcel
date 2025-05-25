@@ -1,28 +1,26 @@
-'use client'
+"use client";
 
-import React, { type ReactNode } from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { WagmiProvider } from 'wagmi';
-import {config, projectId} from '@/config'
-import {RainbowKitProvider} from "@rainbow-me/rainbowkit";
+import "@mysten/dapp-kit/dist/index.css";
 
-// Set up queryClient
-const queryClient = new QueryClient()
+import { SuiClientProvider, WalletProvider } from "@mysten/dapp-kit";
+import { getFullnodeUrl } from "@mysten/sui/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactNode } from "react";
 
-if (!projectId) {
-  throw new Error('Project ID is not defined')
-}
+const queryClient = new QueryClient();
+const networks = {
+  testnet: { url: getFullnodeUrl("testnet") },
+  mainnet: { url: getFullnodeUrl("mainnet") },
+};
 
 function ContextProvider({ children }: { children: ReactNode }) {
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
-          {children}
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
-  )
+    <QueryClientProvider client={queryClient}>
+      <SuiClientProvider networks={networks} defaultNetwork="testnet">
+        <WalletProvider autoConnect={true}>{children}</WalletProvider>
+      </SuiClientProvider>
+    </QueryClientProvider>
+  );
 }
 
-export default ContextProvider
+export default ContextProvider;

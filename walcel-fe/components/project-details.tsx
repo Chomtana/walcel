@@ -20,11 +20,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import EnvManager, { EnvVar } from "@/components/envmanager";
-import { useAccount, useSignMessage } from "wagmi";
 import { Input } from "@/components/ui/input";
 import { AddEnsDialog } from "@/components/add-ens-dialog";
 import { deploySrvUrl } from "@/hooks/useDeploySrv";
 import { resolverUrl } from "@/lib/utils";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
 type ProjectInfo = {
   githubUrl: string;
@@ -80,8 +80,7 @@ export default function ProjectDetails({ projectId }: { projectId: string }) {
   const [envVars, setEnvVars] = useState<EnvVar[]>([{ key: "", value: "" }]);
   const [outputDir, setOutputDir] = useState("dist");
 
-  const { isConnected, address } = useAccount();
-  const { signMessageAsync } = useSignMessage();
+  const account = useCurrentAccount();
 
   const getProject = async (projectId: string) => {
     try {
@@ -99,7 +98,7 @@ export default function ProjectDetails({ projectId }: { projectId: string }) {
   };
 
   const fetchProjectData = async () => {
-    if (isConnected && projectId) {
+    if (account?.address && projectId) {
       const data = await getProject(projectId);
       if (data) {
         const projectInfo: ProjectInfo = {
@@ -143,7 +142,7 @@ export default function ProjectDetails({ projectId }: { projectId: string }) {
         body: JSON.stringify({
           projectId: projectId,
           envJson: JSON.stringify(envVars),
-          address: address,
+          address: account!.address,
           message: message,
           signature: "dummy",
         }),
@@ -167,7 +166,7 @@ export default function ProjectDetails({ projectId }: { projectId: string }) {
 
     // Cleanup interval on unmount
     return () => clearInterval(interval);
-  }, [isConnected, projectId]);
+  }, [account?.address, projectId]);
 
   if (!projectInfo || !deployment) {
     return <div>Loading...</div>;
